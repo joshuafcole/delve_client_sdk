@@ -116,6 +116,7 @@ import DefaultApi from './api/DefaultApi';
 import ConnectionBase from './sdk/ConnectionBase';
 import Connection from './sdk/Connection';
 import LocalConnection from './sdk/LocalConnection';
+import CloudConnection from './sdk/CloudConnection';
 import RelAPIMixin from './sdk/RelAPIMixin';
 
 
@@ -768,6 +769,12 @@ export {
      * @property {module:sdk/LocalConnection}
      */
     LocalConnection,
+
+    /**
+     * The CloudConnection sdk constructor.
+     * @property {module:sdk/CloudConnection}
+     */
+    CloudConnection,
 
     /**
      * The RelAPIMixin sdk constructor.
