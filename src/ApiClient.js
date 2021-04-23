@@ -284,9 +284,13 @@ class ApiClient {
     * Applies authentication headers to the request.
     * @param {Object} request The request object created by a <code>superagent()</code> call.
     * @param {Array.<String>} authNames An array of authentication method names.
+    *
+    * @FIXME: Make sure to call next exactly once after everything.
     */
-    applyAuthToRequest(request, authNames) {
-        authNames.forEach((authName) => {
+    async authenticate_and_send(request, authNames, next) {
+        if(authNames.length !== 1 || authNames[0] !== "serverside") throw new Error("@TODO: IMPLEMENT ME!");
+
+        authNames.forEach(async (authName) => {
             var auth = this.authentications[authName];
             switch (auth.type) {
                 case 'basic':
@@ -324,10 +328,16 @@ class ApiClient {
                     }
 
                     break;
+                case 'serverside':
+                    await auth.sign(request);
+                    next();
+                    break;
                 default:
                     throw new Error('Unknown authentication type: ' + auth.type);
             }
         });
+
+
     }
 
    /**
@@ -395,9 +405,6 @@ class ApiClient {
                 }
             }
         }
-
-        // apply authentications
-        this.applyAuthToRequest(request, authNames);
 
         // set query parameters
         if (httpMethod.toUpperCase() === 'GET' && this.cache === false) {
@@ -467,22 +474,25 @@ class ApiClient {
             }
         }
 
-        request.end((error, response) => {
-            if (callback) {
-                var data = null;
-                if (response && response.text) {
-                    try {
-                        data = this.deserialize(response, returnType);
-                        if (this.enableCookies && typeof window === 'undefined'){
-                            this.agent._saveCookies(response);
+        // apply authentications
+        this.authenticate_and_send(request, authNames, () => {
+            request.end((error, response) => {
+                if (callback) {
+                    var data = null;
+                    if (response && response.text) {
+                        try {
+                            data = this.deserialize(response, returnType);
+                            if (this.enableCookies && typeof window === 'undefined'){
+                                this.agent._saveCookies(response);
+                            }
+                        } catch (err) {
+                            error = err;
                         }
-                    } catch (err) {
-                        error = err;
                     }
-                }
 
-                callback(error, data, response);
-            }
+                    callback(error, data, response);
+                }
+            });
         });
 
         return request;
