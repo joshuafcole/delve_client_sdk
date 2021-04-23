@@ -19,19 +19,19 @@ class CloudConnection extends Base {
     default_service = "transaction";
 
     constructor(config) {
-        let auth = {type: "serverside", sign: undefined};
+        let auth = {type: "custom", apply: undefined};
 
         super({
             basePath: `https://${config.host}`,
             authentications: {
-                serverside: auth
+                "custom": auth
             }
         });
 
         this.config = config;
         
         // @NOTE: Can't access this prior to calling super. This pattern of passing in the authentications is sad.
-        auth.sign = (...args) => this.sign(...args);
+        auth.apply = (...args) => this.sign(...args);
     }
 
     set_compute(compute_name) {

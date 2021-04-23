@@ -288,7 +288,7 @@ class ApiClient {
     * @FIXME: Make sure to call next exactly once after everything.
     */
     async authenticate_and_send(request, authNames, next) {
-        if(authNames.length !== 1 || authNames[0] !== "serverside") throw new Error("@TODO: IMPLEMENT ME!");
+        if(authNames.length !== 1 || authNames[0] !== "custom") throw new Error("@TODO: IMPLEMENT ME!");
 
         authNames.forEach(async (authName) => {
             var auth = this.authentications[authName];
@@ -328,8 +328,8 @@ class ApiClient {
                     }
 
                     break;
-                case 'serverside':
-                    await auth.sign(request);
+                case 'custom':
+                    await auth.apply(request);
                     next();
                     break;
                 default:
