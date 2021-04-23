@@ -21,7 +21,7 @@ class ConnectionBase {
    */
   constructor(params = {}) {
     const apiClient = new ApiClient();
-    this._defaultApi = new DefaultApi(apiClient);
+    this._defaultApi = new DefaultApi(apiClient, Object.keys(params?.authentications));
     this._api = this._defaultApi.apiClient;
     this._versionMap = new Map()
 
