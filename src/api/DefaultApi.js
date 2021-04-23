@@ -25,14 +25,15 @@ import TransactionResult from '../model/TransactionResult';
 export default class DefaultApi {
 
     /**
-    * Constructs a new DefaultApi. 
+    * Constructs a new DefaultApi.
     * @alias module:api/DefaultApi
     * @class
     * @param {module:ApiClient} [apiClient] Optional API client implementation to use,
     * default to {@link module:ApiClient#instance} if unspecified.
     */
-    constructor(apiClient) {
+    constructor(apiClient, authNames) {
         this.apiClient = apiClient || ApiClient.instance;
+        this.authNames = authNames || [];
     }
 
 
@@ -66,7 +67,7 @@ export default class DefaultApi {
       let formParams = {
       };
 
-      let authNames = [];
+      let authNames = this.authNames;
       let contentTypes = ['application/json'];
       let accepts = ['application/json'];
       let returnType = TransactionResult;
