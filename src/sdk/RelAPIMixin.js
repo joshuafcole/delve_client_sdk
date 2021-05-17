@@ -9,6 +9,7 @@ import {
   ModifyWorkspaceAction,
   QueryAction,
   Source,
+  FileSchema,
   Transaction } from '../index.js';
 
 /**
@@ -206,12 +207,16 @@ function RelAPIMixin(Base) {
      * @param {String} relname - Relation name
      * @returns {LabledAction}
      */
-     loadCSVAction(name, data, path, relname) {
+     loadCSVAction(name, data, path, relname, schema) {
       let loadData = new LoadData();
       loadData.content_type = 'text/csv';
       loadData.data = data;
       loadData.path = path;
       loadData.key = [];
+      if(schema) {
+        let file_schema = new FileSchema(schema);
+        loadData.file_schema = file_schema;
+      }
 
       let action = new LoadDataAction();
       action.rel = relname;
