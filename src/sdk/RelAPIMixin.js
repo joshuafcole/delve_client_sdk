@@ -9,7 +9,7 @@ import {
   ModifyWorkspaceAction,
   QueryAction,
   Source,
-  FileSchema,
+  CSVFileSchema,
   Transaction } from '../index.js';
 
 /**
@@ -214,7 +214,9 @@ function RelAPIMixin(Base) {
       loadData.path = path;
       loadData.key = [];
       if(schema) {
-        let file_schema = new FileSchema(schema);
+        console.log("GOT SCHEMA!", schema);
+        let file_schema = new CSVFileSchema("CSVFileSchema");
+        file_schema.types = schema;
         loadData.file_schema = file_schema;
       }
 
@@ -410,10 +412,10 @@ function RelAPIMixin(Base) {
      * @returns {Promise} - Resolves to object: {error, result, response} where
      * `result` is a `TransactionResult`.
      */
-    loadCSV(dbname, data, path, relname, actionName = 'action') {
+    loadCSV(dbname, data, path, relname, schema, actionName = 'action') {
       console.warn('loadCSV is deprecated. Use the language-internal query instead.');
 
-      const action = this.loadCSVAction(actionName, data, path, relname);
+      const action = this.loadCSVAction(actionName, data, path, relname, schema);
 
       return this.runAction(dbname, action, false, Transaction.ModeEnum.OPEN);
     }
