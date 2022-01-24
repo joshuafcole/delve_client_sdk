@@ -32,11 +32,21 @@ function RelAPIMixin(Base) {
     runActions(dbname, actions, isReadOnly, mode) {
       return new Promise((resolve, reject) => {
         let transaction = new Transaction();
+        transaction.meta = {
+          dbname: dbname,
+          compute_name: this.default_compute,
+          open_mode: mode,
+          region: this.config.region
+        };
         transaction.mode = mode;
         transaction.dbname = dbname;
         transaction.readonly = isReadOnly;
         transaction.actions = actions;
         transaction.version = this.getTransactionVersion(dbname);
+
+
+        transaction.computeName = this.defualt_compute;
+        transaction.source_dbname = dbname;
 
         this._transactionPost(transaction, resolve, reject);
       });
@@ -215,7 +225,6 @@ function RelAPIMixin(Base) {
      */
     query(dbname, queryString, isReadOnly=true, outputs=[], inputs=[], actionName = 'action') {
       const action = this.queryAction(actionName, queryString, outputs, inputs);
-
       return this.runAction(dbname, action, isReadOnly, Transaction.ModeEnum.OPEN);
     }
 

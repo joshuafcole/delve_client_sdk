@@ -52,7 +52,6 @@ export default class DefaultApi {
      * data is of type: {@link module:model/TransactionResult}
      */
     transactionPost(transaction, callback) {
-      let postBody = transaction;
       // verify the required parameter 'transaction' is set
       if (transaction === undefined || transaction === null) {
         throw new Error("Missing the required parameter 'transaction' when calling transactionPost");
@@ -60,8 +59,20 @@ export default class DefaultApi {
 
       let pathParams = {
       };
-      let queryParams = {
+      let postBody = {
+        type: "Transaction",
+        abort: transaction.abort,
+        dbname: transaction.dbname,
+        mode: transaction.mode,
+        nowait_durable: transaction.nowait_durable,
+        readonly: transaction.readonly,
+        version: 0,
+
+        computeName: transaction.meta.compute_name,
+        // source_dbname: transaction.dbname,
+        actions: transaction.actions,
       };
+      let queryParams = transaction.meta;
       let headerParams = {
       };
       let formParams = {
@@ -71,6 +82,7 @@ export default class DefaultApi {
       let contentTypes = ['application/json'];
       let accepts = ['application/json'];
       let returnType = TransactionResult;
+
       return this.apiClient.callApi(
         '/transaction', 'POST',
         pathParams, queryParams, headerParams, formParams, postBody,

@@ -288,23 +288,25 @@ class ApiClient {
     * @FIXME: Make sure to call next exactly once after everything.
     */
     async authenticate_and_send(request, authNames, next) {
-        if(authNames.length !== 1 || authNames[0] !== "custom") throw new Error("@TODO: IMPLEMENT ME!");
-
-        authNames.forEach(async (authName) => {
-            var auth = this.authentications[authName];
-            switch (auth.type) {
+        if(authNames.length !== 1) throw new Error("@TODO: IMPLEMENT ME!");
+        for(let authName in this.authentications) {
+            let auth = this.authentications[authName];
+            switch (auth.type || authName) {
                 case 'basic':
                     if (auth.username || auth.password) {
                         request.auth(auth.username || '', auth.password || '');
+                        return next();
                     }
-
                     break;
+
                 case 'bearer':
-                    if (auth.accessToken) {
-                        request.set({'Authorization': 'Bearer ' + auth.accessToken});
+                    var token = await auth.accessToken;
+                    if (token) {
+                        request.set({'Authorization': 'Bearer ' + token});
+                        return next();
                     }
-
                     break;
+
                 case 'apiKey':
                     if (auth.apiKey) {
                         var data = {};
@@ -319,25 +321,29 @@ class ApiClient {
                         } else {
                             request.query(data);
                         }
+                        return next();
                     }
-
                     break;
+
                 case 'oauth2':
-                    if (auth.accessToken) {
-                        request.set({'Authorization': 'Bearer ' + auth.accessToken});
+                    var token = await auth.get_token(request);
+                    if (token) {
+                        request.set({'Authorization': 'Bearer ' + token});
+                        return next();
                     }
+                    break;
 
-                    break;
                 case 'custom':
-                    await auth.apply(request);
-                    next();
+                    if(await auth.apply(request)) {
+                        return next();
+                    }
                     break;
+
                 default:
                     throw new Error('Unknown authentication type: ' + auth.type);
             }
-        });
-
-
+        }
+        throw new Error("No authenticaiton method succeeded. Tried: " + Object.keys(this.authentications).join(", "));
     }
 
    /**
